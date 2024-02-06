@@ -1,11 +1,12 @@
 # Input
 
-<br>
+
+## Basic usage
 
 <div>
   <ot-space>
     <div>
-      <ot-input placeholder="Basic usage" />
+      <ot-input maxLength=10 clearable=true placeholder="Basic usage" />
     </div>
   </ot-space>
 </div>

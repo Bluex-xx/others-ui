@@ -6,13 +6,14 @@ import { BaseElement } from '@others-ui/common'
 import { FormItemContextValue } from '../../context/FormItemContext'
 import { watch } from '../../utils/watch'
 import { FormItemMixin } from '../../mixins/FormMixin'
-
 export interface InputProps {
  placeholder?: string
  name?: string
  value?: string
  disabled?: boolean
+ maxLength?: number
  size?: 'small' | 'medium' | 'large'
+ clearable?: boolean;
 }
 
 export class Input extends FormItemMixin<typeof BaseElement, string>(BaseElement) implements InputProps {
@@ -31,8 +32,14 @@ export class Input extends FormItemMixin<typeof BaseElement, string>(BaseElement
   @property({type: Boolean})
   public disabled?: boolean = false
 
+  @property({type: Number})
+  public maxLength?: number
+
   @property({type: String})
-  public size?: 'small' | 'medium' | 'large' = 'medium'
+  public size?: InputProps['size'] = 'medium'
+
+  @property({type: Boolean})
+  public clearable?: boolean = false
 
   @state()
   public _value?: string
@@ -48,7 +55,7 @@ export class Input extends FormItemMixin<typeof BaseElement, string>(BaseElement
       new CustomEvent('input', {detail: value})
     )
   }
-
+  
   protected willUpdate(state: PropertyValueMap<InputProps & { _value: string, formItemContext: FormItemContextValue<string> }>): void {
     watch(state, {
       formItemContext: () => {
@@ -59,19 +66,34 @@ export class Input extends FormItemMixin<typeof BaseElement, string>(BaseElement
     if (state.has('value')) {
       this._value = this.value
     }
-  }
 
+  }
+  
+  private clearInput() {
+    console.log('Clear input')
+    this._value = ''
+    this.formItemValue = ''
+    this.dispatchEvent(new CustomEvent('input', { detail: '' }))
+  }
   render() {
     return html`
       <div class="container">
         <input
           class=${`size-${this.size}`}
+          maxlength=${ifDefined(this.maxLength)}
           .placeholder=${ifDefined(this.placeholder)}
           @input=${this.onInput}
           .value=${ifDefined(this._value)}
           ?disabled=${this.disabled} 
         />
       </div>
+      ${this.clearable && !this.disabled && this._value !== undefined && this._value !== '' ? html`
+        <button
+          @click=${this.clearInput}>
+          x
+        </button>
+      ` : null}
+    </div>
     `
   }
 }
